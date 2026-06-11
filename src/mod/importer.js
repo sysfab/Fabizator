@@ -209,5 +209,5 @@ function formatBytes(bytes) {
 }
 
 function buildBinaryPlaceholder(path, size) {
-  return `Binary preview is not available for ${path}.\n\nSize: ${formatBytes(size)}\n\nFabizator currently previews text-based mod resources only.`;
+  return `Binary preview is not available for ${path}.\nSize: ${formatBytes(size)}`;
 }
