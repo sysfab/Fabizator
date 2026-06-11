@@ -57,14 +57,13 @@ export default function App() {
         return;
       }
 
-      const firstFileId = result.files[0]?.id ?? null;
       const analysis = analyzeMod(result.files, result.jarName);
 
       setAppState((current) => ({
         ...current,
         jarName: result.jarName,
-        selectedFileId: firstFileId,
-        openFileIds: firstFileId ? [firstFileId] : [],
+        selectedFileId: analyzerTab.id,
+        openFileIds: [analyzerTab.id],
         files: result.files,
         tree: result.tree,
         zip: result.zip,
