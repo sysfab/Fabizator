@@ -136,12 +136,35 @@ function requirementsFromToml(content) {
   const dependencyBlocks = content.match(/\[\[dependencies\.[^\]]+\]\][\s\S]*?(?=\n\s*\[\[|$)/g) ?? [];
 
   return dependencyBlocks
-    .map((block) => ({
-      id: tomlValue(block, "modId") ?? "unknown",
-      version: tomlValue(block, "versionRange") ?? tomlValue(block, "version") ?? "*",
-      relation: tomlValue(block, "type") ?? (tomlValue(block, "mandatory") === "false" ? "Optional" : "Required"),
-    }))
-    .filter((requirement) => requirement.id !== "unknown" && requirement.id !== "minecraft");
+    .map(requirementFromTomlBlock)
+    .filter((requirement) =>
+      requirement.id !== "unknown"
+      && requirement.id !== "minecraft"
+      && isRequiredRequirement(requirement),
+    );
+}
+
+function requirementFromTomlBlock(block) {
+  const type = tomlValue(block, "type");
+  const mandatory = tomlValue(block, "mandatory");
+
+  return {
+    id: tomlValue(block, "modId") ?? "unknown",
+    version: tomlValue(block, "versionRange") ?? tomlValue(block, "version") ?? "*",
+    relation: type ?? (mandatory === "false" ? "Optional" : "Required"),
+    mandatory,
+  };
+}
+
+function isRequiredRequirement(requirement) {
+  const relation = requirement.relation.toLowerCase();
+  const mandatory = requirement.mandatory?.toLowerCase();
+
+  if (mandatory === "false") {
+    return false;
+  }
+
+  return !["optional", "suggested", "recommendation", "recommended", "incompatible", "discouraged"].includes(relation);
 }
 
 function inferMinecraftVersion(version) {
