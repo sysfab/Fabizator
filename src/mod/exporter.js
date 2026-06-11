@@ -1,0 +1,51 @@
+export async function exportJar({ jarName, files, zip }) {
+  if (!zip) {
+    return {
+      ok: false,
+      message: "Open a JAR before exporting.",
+    };
+  }
+
+  for (const file of files) {
+    if (file.editable) {
+      zip.file(file.path, file.content);
+    }
+  }
+
+  const blob = await zip.generateAsync({
+    type: "blob",
+    compression: "DEFLATE",
+  });
+
+  downloadBlob(blob, outputNameFor(jarName));
+
+  return {
+    ok: true,
+    message: `Exported ${outputNameFor(jarName)}.`,
+  };
+}
+
+function outputNameFor(jarName) {
+  if (!jarName || jarName === "No jar loaded") {
+    return "fabizator-export.jar";
+  }
+
+  if (jarName.toLowerCase().endsWith(".jar")) {
+    return jarName;
+  }
+
+  return `${jarName}.jar`;
+}
+
+function downloadBlob(blob, fileName) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = fileName;
+  link.rel = "noopener";
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
