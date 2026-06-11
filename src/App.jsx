@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { analyzeMod } from "./mod/analyzer.js";
 import { exportJar } from "./mod/exporter.js";
-import { importJar } from "./mod/importer.js";
+import { formatBytes, importJar } from "./mod/importer.js";
 import { initialState } from "./state/initialState.js";
 import { EditorPane } from "./ui/EditorPane.jsx";
 import { EditorTabs } from "./ui/EditorTabs.jsx";
@@ -26,6 +26,10 @@ const analyzerTabBase = {
 
 function findFile(files, fileId) {
   return files.find((file) => file.id === fileId) ?? null;
+}
+
+function sizeForContent(content) {
+  return formatBytes(new TextEncoder().encode(content).length);
 }
 
 export default function App() {
@@ -140,7 +144,7 @@ export default function App() {
   function handleChangeFileContent(fileId, content) {
     setAppState((current) => {
       const files = current.files.map((file) =>
-        file.id === fileId ? { ...file, content } : file,
+        file.id === fileId ? { ...file, content, size: sizeForContent(content) } : file,
       );
 
       return {
