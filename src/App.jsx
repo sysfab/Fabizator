@@ -9,6 +9,7 @@ import { Inspector } from "./ui/Inspector.jsx";
 import { Sidebar } from "./ui/Sidebar.jsx";
 import { StatusBar } from "./ui/StatusBar.jsx";
 import { TopBar } from "./ui/TopBar.jsx";
+import { shouldShowWelcomePopup, WelcomePopup } from "./ui/WelcomePopup.jsx";
 
 const panelLimits = {
   sidebar: { min: 160, max: 420 },
@@ -34,6 +35,7 @@ export default function App() {
     sidebar: 216,
     inspector: 320,
   });
+  const [showWelcomePopup, setShowWelcomePopup] = useState(shouldShowWelcomePopup);
   const analyzerTab = {
     ...analyzerTabBase,
     analysis: appState.analysis,
@@ -243,6 +245,10 @@ export default function App() {
         selectedFile={selectedFile}
         notice={notice}
       />
+
+      {showWelcomePopup ? (
+        <WelcomePopup onClose={() => setShowWelcomePopup(false)} />
+      ) : null}
     </div>
   );
 }

@@ -773,6 +773,114 @@ button {
   padding: 1rem;
 }
 
+.welcome-backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(5, 8, 12, 0.72);
+  z-index: 20;
+}
+
+.welcome-dialog {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem;
+  width: min(34rem, 100%);
+  padding: 1.25rem;
+  border: 1px solid var(--line-bright);
+  background: #111923;
+  box-shadow: var(--shadow);
+}
+
+.welcome-avatar {
+  width: 3.25rem;
+  height: 3.25rem;
+  border: 1px solid rgba(124, 193, 68, 0.58);
+  background: #13210f;
+  object-fit: cover;
+}
+
+.welcome-copy {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.welcome-copy span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.welcome-copy h2,
+.welcome-copy p {
+  margin: 0;
+}
+
+.welcome-copy h2 {
+  font-size: 1.25rem;
+}
+
+.welcome-copy p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.welcome-checkbox {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.welcome-checkbox input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--accent);
+}
+
+.welcome-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  padding-top: 0.25rem;
+}
+
+.welcome-actions a,
+.welcome-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.35rem;
+  padding: 0 0.85rem;
+  border: 1px solid var(--line);
+  background: var(--panel-strong);
+  color: var(--text);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.welcome-actions a:hover,
+.welcome-actions button:hover {
+  border-color: var(--line-bright);
+  background: #1b2838;
+}
+
+.welcome-actions .welcome-support-link {
+  border-color: rgba(124, 193, 68, 0.65);
+  background: #68a43a;
+  color: #071006;
+  font-weight: 800;
+}
+
 .status-bar {
   display: grid;
   grid-template-columns: auto minmax(8rem, 1fr) minmax(10rem, 1fr) auto;
