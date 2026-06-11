@@ -337,13 +337,14 @@ button {
 }
 
 .tree-item {
+  --tree-indent: calc(var(--depth) * 0.75rem);
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  width: 100%;
+  width: calc(100% - var(--tree-indent));
   min-height: 1.55rem;
+  margin-left: var(--tree-indent);
   padding: 0.2rem 0.35rem;
-  padding-left: calc(0.35rem + var(--depth) * 0.75rem);
   text-align: left;
   font-size: 0.86rem;
 }
@@ -374,10 +375,11 @@ button {
 }
 
 .tree-icon {
+  display: inline-flex;
+  justify-content: center;
   width: 1rem;
   color: var(--accent-strong);
-  font-family: "SFMono-Regular", Consolas, monospace;
-  font-size: 0.76rem;
+  font-size: 0.82rem;
 }
 
 .editor-region {

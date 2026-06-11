@@ -1,3 +1,5 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileCode, faFolder, faFolderOpen } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 
 export function Sidebar({ treeItems, selectedFileId, onSelectFile, onOpenAnalyzer }) {
@@ -53,7 +55,7 @@ export function Sidebar({ treeItems, selectedFileId, onSelectFile, onOpenAnalyze
               aria-expanded={isFolder ? isExpanded : undefined}
             >
               <span className="tree-icon" aria-hidden="true">
-                {isFile ? "<>" : isExpanded ? "v" : ">"}
+                <FontAwesomeIcon icon={isFile ? faFileCode : isExpanded ? faFolderOpen : faFolder} />
               </span>
               <span className="tree-label">{item.label}</span>
             </button>

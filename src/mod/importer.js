@@ -171,7 +171,34 @@ function buildTree(files) {
     });
   }
 
-  return tree;
+  return tree.sort(compareTreeItems);
+}
+
+function compareTreeItems(left, right) {
+  const leftParts = left.path.split("/");
+  const rightParts = right.path.split("/");
+  const sharedDepth = Math.min(leftParts.length, rightParts.length);
+
+  for (let index = 0; index < sharedDepth; index += 1) {
+    if (leftParts[index] === rightParts[index]) {
+      continue;
+    }
+
+    const leftKind = kindAtDepth(left, index, leftParts);
+    const rightKind = kindAtDepth(right, index, rightParts);
+
+    if (leftKind !== rightKind) {
+      return leftKind === "folder" ? -1 : 1;
+    }
+
+    return leftParts[index].localeCompare(rightParts[index]);
+  }
+
+  return leftParts.length - rightParts.length;
+}
+
+function kindAtDepth(item, depth, pathParts) {
+  return depth < pathParts.length - 1 ? "folder" : item.kind;
 }
 
 function formatBytes(bytes) {
