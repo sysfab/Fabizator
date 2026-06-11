@@ -111,7 +111,6 @@ export default function App() {
         ? current.openFileIds
         : [...current.openFileIds, fileId],
     }));
-    setNotice(`${file.path} opened.`);
   }
 
   function openAnalyzer() {
@@ -122,7 +121,6 @@ export default function App() {
         ? current.openFileIds
         : [...current.openFileIds, analyzerTab.id],
     }));
-    setNotice("Mod Analyzer opened.");
   }
 
   function handleCloseTab(fileId) {
