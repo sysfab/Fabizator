@@ -884,9 +884,8 @@ button {
 }
 
 .status-bar {
-  display: grid;
-  grid-template-columns: auto minmax(8rem, 1fr) minmax(10rem, 1fr) auto;
-  gap: 1rem;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   min-height: 2.35rem;
   padding: 0.35rem 1rem;
