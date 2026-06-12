@@ -74,6 +74,24 @@ const editorTheme = EditorView.theme({
   },
 });
 
+function languageExtensionsFor(path) {
+  const lowerPath = path.toLowerCase();
+
+  if (lowerPath.endsWith(".json") || lowerPath.endsWith(".mcmeta")) {
+    return [json()];
+  }
+
+  if (lowerPath.endsWith(".xml")) {
+    return [xml()];
+  }
+
+  if (lowerPath.endsWith(".yml") || lowerPath.endsWith(".yaml")) {
+    return [yaml()];
+  }
+
+  return [];
+}
+
 export function CodeEditor({ file, onChange }) {
   const containerRef = useRef(null);
   const editorRef = useRef(null);
@@ -150,20 +168,4 @@ export function CodeEditor({ file, onChange }) {
   );
 }
 
-function languageExtensionsFor(path) {
-  const lowerPath = path.toLowerCase();
-
-  if (lowerPath.endsWith(".json") || lowerPath.endsWith(".mcmeta")) {
-    return [json()];
-  }
-
-  if (lowerPath.endsWith(".xml")) {
-    return [xml()];
-  }
-
-  if (lowerPath.endsWith(".yml") || lowerPath.endsWith(".yaml")) {
-    return [yaml()];
-  }
-
-  return [];
-}
+export default CodeEditor;

@@ -1,5 +1,8 @@
+import { lazy, Suspense } from 'react';
+
+const CodeEditor = lazy(() => import("./CodeEditor.jsx"));
+
 import { AudioPreview } from "./AudioPreview.jsx";
-import { CodeEditor } from "./CodeEditor.jsx";
 import { ImagePreview } from "./ImagePreview.jsx";
 
 export function EditorPane({ file, onChangeFileContent }) {
@@ -72,7 +75,13 @@ export function EditorPane({ file, onChangeFileContent }) {
       ) : file.previewKind === "audio" ? (
         <AudioPreview file={file} />
       ) : (
-        <CodeEditor file={file} onChange={onChangeFileContent} />
+        <Suspense fallback={
+          <div className="code-editor-shell">
+            Loading editor...
+          </div>
+        }>
+          <CodeEditor file={file} onChange={onChangeFileContent} />
+        </Suspense>
       )}
     </div>
   );
