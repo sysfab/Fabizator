@@ -883,6 +883,10 @@ button {
   font-weight: 800;
 }
 
+.welcome-actions .welcome-support-link span {
+  padding-right: 5px;
+}
+
 .status-bar {
   display: flex;
   justify-content: space-between;

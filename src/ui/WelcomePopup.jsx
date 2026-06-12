@@ -1,5 +1,8 @@
 import { useState } from "react";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
+
 const welcomeStorageKey = "fabizator-welcome-popup-shown";
 
 export function shouldShowWelcomePopup() {
@@ -62,7 +65,7 @@ export function WelcomePopup({ onClose }) {
             rel="noreferrer"
             className="welcome-support-link"
           >
-            Support
+            <span>Support</span> <FontAwesomeIcon icon={faHeart}/>
           </a>
           <button type="button" onClick={closePopup}>
             Continue
