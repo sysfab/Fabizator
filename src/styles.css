@@ -221,6 +221,11 @@ button {
   font-weight: 800;
 }
 
+.toolbar .primary-action:hover {
+  border-color: var(--line);
+  background: var(--line-bright);
+}
+
 .workspace {
   display: grid;
   grid-template-columns: var(--sidebar-width, 13.5rem) 0.35rem minmax(0, 1fr) 0.35rem var(--inspector-width, 20rem);
