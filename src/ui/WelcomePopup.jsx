@@ -17,9 +17,7 @@ export function WelcomePopup({ onClose }) {
     if (dontShowAgain) {
       try {
         localStorage.setItem(welcomeStorageKey, "true");
-      } catch {
-        // Ignore storage failures; closing should still work for this session.
-      }
+      } catch {}
     }
 
     onClose();

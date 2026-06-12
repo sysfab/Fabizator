@@ -1,4 +1,4 @@
-export function StatusBar({ jarName, selectedFile, notice }) {
+export function StatusBar({ notice }) {
   return (
     <footer className="status-bar">
       <span>{notice}</span>

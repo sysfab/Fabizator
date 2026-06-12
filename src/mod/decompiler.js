@@ -11,11 +11,7 @@ async function getCfr() {
   return decompileFn;
 }
 
-/**
- * Decompile every .class file in the JAR in the background.
- * Calls onBatch() with a chunk of results every BATCH_SIZE files
- * so the caller can update state incrementally without flooding React.
- */
+
 export async function decompileAll(files, onBatch, batchSize = 8) {
   const decompile = await getCfr();
 

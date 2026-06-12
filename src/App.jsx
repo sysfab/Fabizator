@@ -271,8 +271,6 @@ export default function App() {
       </main>
 
       <StatusBar
-        jarName={appState.jarName}
-        selectedFile={selectedFile}
         notice={notice}
       />
 
