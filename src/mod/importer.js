@@ -61,6 +61,10 @@ export async function importJar(file) {
       const previewDataUrl = previewMimeType
         ? `data:${previewMimeType};base64,${await entry.async("base64")}`
         : null;
+      const isClassFile = entry.name.toLowerCase().endsWith(".class");
+      const classBytes = isClassFile
+        ? await entry.async("uint8array")
+        : null;
 
       return {
         id: fileIdFromPath(entry.name),
@@ -71,9 +75,13 @@ export async function importJar(file) {
         editable,
         previewKind: imageMimeType ? "image" : audioMimeType ? "audio" : "code",
         previewDataUrl,
-        content: editable
-          ? await entry.async("string")
-          : buildBinaryPlaceholder(entry.name, size),
+        classBytes,
+        decompiled: false,
+        content: isClassFile
+          ? "// Decompiling..."
+          : editable
+            ? await entry.async("string")
+            : buildBinaryPlaceholder(entry.name, size),
       };
     }),
   );

@@ -3,6 +3,7 @@ import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { json } from "@codemirror/lang-json";
 import { xml } from "@codemirror/lang-xml";
 import { yaml } from "@codemirror/lang-yaml";
+import { java } from "@codemirror/lang-java";
 
 import {LRLanguage, LanguageSupport} from "@codemirror/language";
 import {parser} from "lezer-toml";
@@ -98,6 +99,10 @@ function languageExtensionsFor(path) {
 
   if (lowerPath.endsWith(".toml")) {
     return [toml()];
+  }
+
+  if (lowerPath.endsWith(".class") || lowerPath.endsWith(".java")) {
+    return [java()];
   }
 
   return [];

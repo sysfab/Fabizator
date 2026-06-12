@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { analyzeMod } from "./mod/analyzer.js";
+import { decompileAll } from "./mod/decompiler.js";
 import { exportJar } from "./mod/exporter.js";
 import { formatBytes, importJar } from "./mod/importer.js";
 import { initialState } from "./state/initialState.js";
@@ -57,14 +58,12 @@ export default function App() {
 
     try {
       const result = await importJar(file);
-
       if (!result.ok) {
         setNotice(result.message);
         return;
       }
 
       const analysis = analyzeMod(result.files, result.jarName);
-
       setAppState((current) => ({
         ...current,
         jarName: result.jarName,
@@ -75,7 +74,36 @@ export default function App() {
         zip: result.zip,
         analysis,
       }));
-      setNotice(result.message);
+
+      const classCount = result.files.filter((f) =>
+        f.path.toLowerCase().endsWith(".class")
+      ).length;
+
+      if (classCount === 0) {
+        setNotice(result.message);
+        return;
+      }
+
+      setNotice(`Loaded ${file.name}. Decompiling ${classCount} classes...`);
+
+      // Run in background — do NOT await
+      decompileAll(result.files, (batch, completed, total) => {
+        setNotice(`Decompiling classes... ${completed} / ${total}`);
+        setAppState((current) => {
+          const updates = new Map(batch.map((b) => [b.id, b.source]));
+          return {
+            ...current,
+            files: current.files.map((f) =>
+              updates.has(f.id)
+                ? { ...f, content: updates.get(f.id), decompiled: true }
+                : f
+            ),
+          };
+        });
+      })
+        .then((count) => setNotice(`${file.name} — decompiled ${count} classes.`))
+        .catch((err) => setNotice(`Decompilation error: ${err.message}`));
+
     } catch (error) {
       setNotice(`Could not load ${file.name}: ${error.message}`);
     }

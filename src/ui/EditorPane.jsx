@@ -5,7 +5,7 @@ const CodeEditor = lazy(() => import("./CodeEditor.jsx"));
 import { AudioPreview } from "./AudioPreview.jsx";
 import { ImagePreview } from "./ImagePreview.jsx";
 
-export function EditorPane({ file, onChangeFileContent }) {
+export function EditorPane({ file, onChangeFileContent, onDecompile }) {
   if (file?.isAnalyzer) {
     return (
       <div className="editor-pane analyzer-pane">
@@ -49,13 +49,14 @@ export function EditorPane({ file, onChangeFileContent }) {
         <div>
           <span className="empty-kicker">No file selected</span>
           <h2>Click on the file to inspect its contents.</h2>
-          <p>
-            (Open .JAR first)
-          </p>
+          <p>(Open .JAR first)</p>
         </div>
       </div>
     );
   }
+
+  const isClassFile = file.path.toLowerCase().endsWith(".class");
+  const needsDecompile = isClassFile && !file.decompiled;
 
   return (
     <div className="editor-pane">
@@ -64,8 +65,20 @@ export function EditorPane({ file, onChangeFileContent }) {
           <div>
             <h2>{file.path}</h2>
           </div>
-          <span className={`edit-badge${file.editable ? " editable" : " readonly"}`}>
-            {file.editable ? "Editable" : "Read-only"}
+          <span className={`edit-badge${
+            file.decompiled
+              ? " readonly"
+              : file.editable
+                ? " editable"
+                : " readonly"
+          }`}>
+            {file.decompiled
+              ? "Decompiled"
+              : file.editable
+                ? "Editable"
+                : file.path.toLowerCase().endsWith(".class")
+                  ? "Decompiling..."
+                  : "Read-only"}
           </span>
         </div>
       )}
@@ -75,11 +88,7 @@ export function EditorPane({ file, onChangeFileContent }) {
       ) : file.previewKind === "audio" ? (
         <AudioPreview file={file} />
       ) : (
-        <Suspense fallback={
-          <div className="code-editor-shell">
-            Loading editor...
-          </div>
-        }>
+        <Suspense fallback={<div className="code-editor-shell">Loading editor...</div>}>
           <CodeEditor file={file} onChange={onChangeFileContent} />
         </Suspense>
       )}
