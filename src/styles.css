@@ -872,8 +872,8 @@ button {
 
 .welcome-actions a:hover,
 .welcome-actions button:hover {
-  border-color: var(--line-bright);
-  background: #1b2838;
+  border-color: var(--line);
+  background: var(--line-bright);
 }
 
 .welcome-actions .welcome-support-link {
