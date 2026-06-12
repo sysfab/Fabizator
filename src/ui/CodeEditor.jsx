@@ -1,7 +1,14 @@
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
+
 import { json } from "@codemirror/lang-json";
 import { xml } from "@codemirror/lang-xml";
 import { yaml } from "@codemirror/lang-yaml";
+
+import {LRLanguage, LanguageSupport} from "@codemirror/language";
+import {parser} from "lezer-toml";
+export const tomlLanguage = LRLanguage.define({ parser });
+export function toml() { return new LanguageSupport(tomlLanguage); }
+
 import { syntaxHighlighting, HighlightStyle } from "@codemirror/language";
 import { EditorState } from "@codemirror/state";
 import {
@@ -87,6 +94,10 @@ function languageExtensionsFor(path) {
 
   if (lowerPath.endsWith(".yml") || lowerPath.endsWith(".yaml")) {
     return [yaml()];
+  }
+
+  if (lowerPath.endsWith(".toml")) {
+    return [toml()];
   }
 
   return [];
