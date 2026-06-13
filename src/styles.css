@@ -904,6 +904,10 @@ button {
   font-size: 0.78rem;
 }
 
+.status-bar a {
+  text-decoration: none;
+}
+
 .status-bar span {
   overflow: hidden;
   text-overflow: ellipsis;
