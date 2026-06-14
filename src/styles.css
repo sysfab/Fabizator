@@ -526,28 +526,6 @@ button {
   image-rendering: pixelated;
 }
 
-.image-preview-meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.65rem 0.8rem;
-  border-top: 1px solid #1f2d3f;
-  color: var(--muted);
-  font-size: 0.82rem;
-}
-
-.image-preview-meta span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.image-preview-meta strong {
-  color: var(--text);
-  white-space: nowrap;
-}
-
 .audio-preview-shell {
   display: grid;
   place-items: center;
@@ -563,61 +541,10 @@ button {
   gap: 1rem;
   width: min(36rem, 100%);
   padding: 1.25rem;
-  border: 1px solid var(--line);
-  background: rgba(15, 23, 33, 0.86);
-}
-
-.audio-preview-icon {
-  display: grid;
-  place-items: center;
-  width: 3rem;
-  height: 3rem;
-  border: 1px solid rgba(124, 193, 68, 0.5);
-  background: #13210f;
-  color: var(--accent-strong);
-  font-size: 1.35rem;
-  font-weight: 800;
-}
-
-.audio-preview-title {
-  display: grid;
-  gap: 0.25rem;
-}
-
-.audio-preview-title span {
-  color: var(--muted);
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.audio-preview-title strong {
-  color: #f5fbef;
-  overflow-wrap: anywhere;
 }
 
 .audio-player {
   width: 100%;
-}
-
-.audio-preview-meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  color: var(--muted);
-  font-size: 0.82rem;
-}
-
-.audio-preview-meta span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.audio-preview-meta strong {
-  color: var(--text);
-  white-space: nowrap;
 }
 
 .empty-state {

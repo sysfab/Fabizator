@@ -26,6 +26,7 @@
     "lezer-toml": "^1.0.0",
     "react": "latest",
     "react-dom": "latest",
+    "react-zoom-pan-pinch": "^4.0.3",
     "vite": "latest"
   }
 }
