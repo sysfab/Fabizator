@@ -2,6 +2,7 @@ import JSZip from "jszip";
 
 const textExtensions = new Set([
   ".json",
+  ".lang",
   ".mcmeta",
   ".toml",
   ".properties",
@@ -138,6 +139,7 @@ function detectFileType(path) {
   if (lowerPath.endsWith("manifest.mf")) return "JAR manifest";
   if (lowerPath.endsWith(".mixins.json")) return "Mixin config";
   if (extension === ".json") return "JSON resource";
+  if (extension === ".json") return "Localization file";
   if (extension === ".class") return "Compiled Java class";
   if (imageMimeTypes.has(extension)) return "Image";
   if (audioMimeTypes.has(extension)) return "Audio";
