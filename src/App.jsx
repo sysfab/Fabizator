@@ -7,6 +7,7 @@ import { buildTree, fileFromBytes, fileIdFromPath, formatBytes, importJar } from
 import { initialState } from "./state/initialState.js";
 import { EditorPane } from "./ui/EditorPane.jsx";
 import { EditorTabs } from "./ui/EditorTabs.jsx";
+import { ExportPopup } from "./ui/ExportPopup.jsx";
 import { Inspector } from "./ui/Inspector.jsx";
 import { Sidebar } from "./ui/Sidebar.jsx";
 import { StatusBar } from "./ui/StatusBar.jsx";
@@ -156,6 +157,7 @@ export default function App() {
   });
   const [treeClipboard, setTreeClipboard] = useState(null);
   const [expandedTreeFolders, setExpandedTreeFolders] = useState(() => new Set());
+  const [showExportPopup, setShowExportPopup] = useState(false);
   const [showWelcomePopup, setShowWelcomePopup] = useState(shouldShowWelcomePopup);
   const analyzerTab = {
     ...analyzerTabBase,
@@ -300,10 +302,15 @@ export default function App() {
 
   async function handleExportJar() {
     setNotice("Exporting JAR...");
+    setShowExportPopup(false);
 
     try {
       const result = await exportJar(appState);
       setNotice(result.message);
+
+      if (result.ok) {
+        setShowExportPopup(true);
+      }
     } catch (error) {
       setNotice(`Could not export ${appState.jarName}: ${error.message}`);
     }
@@ -1064,6 +1071,10 @@ export default function App() {
 
       {showWelcomePopup ? (
         <WelcomePopup onClose={() => setShowWelcomePopup(false)} />
+      ) : null}
+
+      {showExportPopup ? (
+        <ExportPopup onClose={() => setShowExportPopup(false)} />
       ) : null}
     </div>
   );
