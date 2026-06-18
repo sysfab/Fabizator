@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCode, faCopy, faDownload, faFileCirclePlus, faFileCode, faFolder, faFolderOpen, faFolderPlus, faPaste, faPenToSquare, faTrash, faUpload } from "@fortawesome/free-solid-svg-icons";
+import { faCode, faCopy, faDownload, faFileCirclePlus, faFileCode, faFolder, faFolderOpen, faFolderPlus, faMagnifyingGlass, faPaste, faPenToSquare, faTrash, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";
 
 export function Sidebar({ treeItems, expandedFolders, selectedFileId, hasClipboardItem, hasUndecompiledClassFiles, onSelectFile, onAddFile, onAddFolder, onUploadFiles, onCopyItem, onPasteItem, onDownloadItem, onRenameFile, onDeleteFile, onRenameFolder, onDeleteFolder, onDecompileAll, onOpenAnalyzer, onExpandedFoldersChange }) {
@@ -227,6 +227,7 @@ export function Sidebar({ treeItems, expandedFolders, selectedFileId, hasClipboa
             className={`analyzer-button${selectedFileId === "app:analyzer" ? " active" : ""}`}
             onClick={onOpenAnalyzer}
           >
+            <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true" />
             Analyzer
           </button>
         </div>
