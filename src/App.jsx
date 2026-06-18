@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import JSZip from "jszip";
 import { analyzeMod } from "./mod/analyzer.js";
-import { decompileAll } from "./mod/decompiler.js";
+import { decompileFile } from "./mod/decompiler.js";
 import { downloadBlob, exportJar } from "./mod/exporter.js";
 import { buildTree, fileFromBytes, fileIdFromPath, formatBytes, importJar } from "./mod/importer.js";
 import { initialState } from "./state/initialState.js";
@@ -168,6 +168,12 @@ export default function App() {
   const activeEditorItem = appState.selectedFileId === analyzerTab.id ? analyzerTab : selectedFile;
   const isAnalyzerOpen = appState.selectedFileId === analyzerTab.id;
 
+  useEffect(() => {
+    if (selectedFile) {
+      void decompileOpenedFile(selectedFile, appState.files);
+    }
+  }, [selectedFile, appState.files]);
+
   async function handleOpenJar(file) {
     setNotice(`Loading ${file.name}...`);
 
@@ -192,37 +198,49 @@ export default function App() {
         analysis,
       }));
 
-      const classCount = result.files.filter((f) =>
-        f.path.toLowerCase().endsWith(".class")
-      ).length;
-
-      if (classCount === 0) {
-        setNotice(result.message);
-        return;
-      }
-
-      setNotice(`Loaded ${file.name}. Decompiling ${classCount} classes...`);
-
-      // Run in background — do NOT await
-      decompileAll(result.files, (batch, completed, total) => {
-        setNotice(`Decompiling classes... ${completed} / ${total}`);
-        setAppState((current) => {
-          const updates = new Map(batch.map((b) => [b.id, b.source]));
-          return {
-            ...current,
-            files: current.files.map((f) =>
-              updates.has(f.id)
-                ? { ...f, content: updates.get(f.id), decompiled: true }
-                : f
-            ),
-          };
-        });
-      })
-        .then((count) => setNotice(`${file.name} — decompiled ${count} classes.`))
-        .catch((err) => setNotice(`Decompilation error: ${err.message}`));
-
+      setNotice(result.message);
     } catch (error) {
       setNotice(`Could not load ${file.name}: ${error.message}`);
+    }
+  }
+
+  async function decompileOpenedFile(file, files) {
+    if (!file.path.toLowerCase().endsWith(".class") || file.decompiled || file.decompiling) {
+      return;
+    }
+
+    setNotice(`Decompiling ${file.name}...`);
+    setAppState((current) => ({
+      ...current,
+      files: current.files.map((currentFile) =>
+        currentFile.id === file.id && currentFile.classBytes === file.classBytes
+          ? { ...currentFile, content: "// Decompiling...", decompiling: true }
+          : currentFile
+      ),
+    }));
+
+    try {
+      const source = await decompileFile(file, files);
+
+      setAppState((current) => ({
+        ...current,
+        files: current.files.map((currentFile) =>
+          currentFile.id === file.id && currentFile.classBytes === file.classBytes
+            ? { ...currentFile, content: source, decompiled: true, decompiling: false }
+            : currentFile
+        ),
+      }));
+      setNotice(`Decompiled ${file.name}.`);
+    } catch (error) {
+      setAppState((current) => ({
+        ...current,
+        files: current.files.map((currentFile) =>
+          currentFile.id === file.id && currentFile.classBytes === file.classBytes
+            ? { ...currentFile, decompiling: false }
+            : currentFile
+        ),
+      }));
+      setNotice(`Could not decompile ${file.name}: ${error.message}`);
     }
   }
 

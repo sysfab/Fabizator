@@ -90,6 +90,7 @@ export function fileFromBytes(path, bytes, size = bytes.byteLength) {
     previewDataUrl: previewMimeType ? `data:${previewMimeType};base64,${bytesToBase64(bytes)}` : null,
     classBytes,
     decompiled: false,
+    decompiling: false,
     content: isClassFile
       ? "// Decompiling..."
       : editable

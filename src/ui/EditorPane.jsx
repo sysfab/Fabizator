@@ -5,7 +5,7 @@ const CodeEditor = lazy(() => import("./CodeEditor.jsx"));
 import { AudioPreview } from "./AudioPreview.jsx";
 import { ImagePreview } from "./ImagePreview.jsx";
 
-export function EditorPane({ file, onChangeFileContent, onDecompile }) {
+export function EditorPane({ file, onChangeFileContent }) {
   if (file?.isAnalyzer) {
     return (
       <div className="editor-pane analyzer-pane">
@@ -54,9 +54,6 @@ export function EditorPane({ file, onChangeFileContent, onDecompile }) {
       </div>
     );
   }
-
-  const isClassFile = file.path.toLowerCase().endsWith(".class");
-  const needsDecompile = isClassFile && !file.decompiled;
 
   return (
     <div className="editor-pane">
