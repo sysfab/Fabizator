@@ -5,7 +5,7 @@ const CodeEditor = lazy(() => import("./CodeEditor.jsx"));
 import { AudioPreview } from "./AudioPreview.jsx";
 import { ImagePreview } from "./ImagePreview.jsx";
 
-export function EditorPane({ file, onChangeFileContent }) {
+export function EditorPane({ jarLoaded, file, onChangeFileContent }) {
   if (file?.isAnalyzer) {
     return (
       <div className="editor-pane analyzer-pane">
@@ -43,13 +43,23 @@ export function EditorPane({ file, onChangeFileContent }) {
     );
   }
 
+  if (!jarLoaded) {
+    return (
+      <div className="editor-pane empty-state">
+        <div>
+          <span className="empty-kicker">No .JAR loaded</span>
+          <h2>Import .JAR file to start.</h2>
+        </div>
+      </div>
+    );
+  }
+
   if (!file) {
     return (
       <div className="editor-pane empty-state">
         <div>
           <span className="empty-kicker">No file selected</span>
-          <h2>Click on the file to inspect its contents.</h2>
-          <p>(Import .JAR first)</p>
+          <h2>Select file to inspect its contents.</h2>
         </div>
       </div>
     );

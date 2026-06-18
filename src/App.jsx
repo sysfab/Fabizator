@@ -1038,6 +1038,7 @@ export default function App() {
             onCloseTab={handleCloseTab}
           />
           <EditorPane
+            jarLoaded={Boolean(appState.zip)}
             file={activeEditorItem}
             onChangeFileContent={handleChangeFileContent}
           />
