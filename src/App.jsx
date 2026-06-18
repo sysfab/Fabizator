@@ -155,6 +155,7 @@ export default function App() {
     inspector: 320,
   });
   const [treeClipboard, setTreeClipboard] = useState(null);
+  const [expandedTreeFolders, setExpandedTreeFolders] = useState(() => new Set());
   const [showWelcomePopup, setShowWelcomePopup] = useState(shouldShowWelcomePopup);
   const analyzerTab = {
     ...analyzerTabBase,
@@ -188,6 +189,7 @@ export default function App() {
       }
 
       setTreeClipboard(null);
+      setExpandedTreeFolders(new Set());
       const analysis = analyzeMod(result.files, result.jarName);
       setAppState((current) => ({
         ...current,
@@ -375,11 +377,19 @@ export default function App() {
       return;
     }
 
-    const nextPath = window.prompt("Rename file", currentFile.path)?.trim();
+    const currentFileName = baseNameFor(currentFile.path);
+    const nextName = window.prompt("Rename file", currentFileName)?.trim();
 
-    if (!nextPath || nextPath === currentFile.path) {
+    if (!nextName || nextName === currentFileName) {
       return;
     }
+
+    if (nextName.includes("/") || nextName.includes("\\")) {
+      setNotice("File names cannot contain path separators.");
+      return;
+    }
+
+    const nextPath = joinPath(parentPathFor(currentFile.path), nextName);
 
     if (hasEmptyPathSegment(nextPath)) {
       setNotice("Paths cannot contain empty segments.");
@@ -461,11 +471,19 @@ export default function App() {
 
   async function handleRenameFolder(treeItem) {
     const currentFolderPath = treeItem.path;
-    const nextFolderPath = window.prompt("Rename folder", currentFolderPath)?.trim();
+    const currentFolderName = baseNameFor(currentFolderPath);
+    const nextFolderName = window.prompt("Rename folder", currentFolderName)?.trim();
 
-    if (!nextFolderPath || nextFolderPath === currentFolderPath) {
+    if (!nextFolderName || nextFolderName === currentFolderName) {
       return;
     }
+
+    if (nextFolderName.includes("/") || nextFolderName.includes("\\")) {
+      setNotice("Folder names cannot contain path separators.");
+      return;
+    }
+
+    const nextFolderPath = joinPath(parentPathFor(currentFolderPath), nextFolderName);
 
     if (hasEmptyPathSegment(nextFolderPath)) {
       setNotice("Paths cannot contain empty segments.");
@@ -550,6 +568,19 @@ export default function App() {
           tree: buildTree(files, folders),
           analysis: analyzeMod(files, current.jarName),
         };
+      });
+      setExpandedTreeFolders((current) => {
+        const next = new Set();
+
+        for (const folderPath of current) {
+          next.add(
+            isFolderPathInFolder(folderPath, currentFolderPath)
+              ? `${nextFolderPath}${folderPath.slice(currentFolderPath.length)}`
+              : folderPath,
+          );
+        }
+
+        return next;
       });
       setNotice(`Renamed ${currentFolderPath} to ${nextFolderPath}.`);
     } catch (error) {
@@ -972,6 +1003,7 @@ export default function App() {
       >
         <Sidebar
           treeItems={appState.tree}
+          expandedFolders={expandedTreeFolders}
           selectedFileId={appState.selectedFileId}
           hasClipboardItem={Boolean(treeClipboard)}
           hasUndecompiledClassFiles={hasUndecompiledClassFiles}
@@ -988,6 +1020,7 @@ export default function App() {
           onDeleteFolder={handleDeleteFolder}
           onDecompileAll={handleDecompileAll}
           onOpenAnalyzer={openAnalyzer}
+          onExpandedFoldersChange={setExpandedTreeFolders}
         />
 
         <button

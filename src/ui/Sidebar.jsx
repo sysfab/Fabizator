@@ -2,15 +2,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCode, faCopy, faDownload, faFileCirclePlus, faFileCode, faFolder, faFolderOpen, faFolderPlus, faPaste, faPenToSquare, faTrash, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";
 
-export function Sidebar({ treeItems, selectedFileId, hasClipboardItem, hasUndecompiledClassFiles, onSelectFile, onAddFile, onAddFolder, onUploadFiles, onCopyItem, onPasteItem, onDownloadItem, onRenameFile, onDeleteFile, onRenameFolder, onDeleteFolder, onDecompileAll, onOpenAnalyzer }) {
-  const [expandedFolders, setExpandedFolders] = useState(() => new Set());
+export function Sidebar({ treeItems, expandedFolders, selectedFileId, hasClipboardItem, hasUndecompiledClassFiles, onSelectFile, onAddFile, onAddFolder, onUploadFiles, onCopyItem, onPasteItem, onDownloadItem, onRenameFile, onDeleteFile, onRenameFolder, onDeleteFolder, onDecompileAll, onOpenAnalyzer, onExpandedFoldersChange }) {
   const [contextMenu, setContextMenu] = useState(null);
   const uploadTargetRef = useRef(null);
   const fileUploadInputRef = useRef(null);
-
-  useEffect(() => {
-    setExpandedFolders(new Set());
-  }, [treeItems]);
 
   useEffect(() => {
     if (!contextMenu) {
@@ -39,7 +34,7 @@ export function Sidebar({ treeItems, selectedFileId, hasClipboardItem, hasUndeco
   }, [contextMenu]);
 
   function toggleFolder(path) {
-    setExpandedFolders((current) => {
+    onExpandedFoldersChange((current) => {
       const next = new Set(current);
 
       if (next.has(path)) {
