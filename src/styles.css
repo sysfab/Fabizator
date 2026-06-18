@@ -140,8 +140,7 @@ button {
 }
 
 .brand-block h1,
-.brand-block p,
-.editor-header h2 {
+.brand-block p {
   margin: 0;
 }
 
@@ -511,38 +510,6 @@ button {
 .editor-pane:has(.image-preview-shell),
 .editor-pane:has(.audio-preview-shell) {
   grid-template-rows: minmax(0, 1fr);
-}
-
-.editor-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-}
-
-.editor-header h2 {
-  margin-top: 0.2rem;
-  font-size: 1rem;
-  overflow-wrap: anywhere;
-}
-
-.edit-badge {
-  flex: 0 0 auto;
-  padding: 0.35rem 0.55rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  font-size: 0.78rem;
-}
-
-.edit-badge.editable {
-  border-color: rgba(124, 193, 68, 0.5);
-  color: var(--accent-strong);
-}
-
-.edit-badge.readonly {
-  border-color: rgba(240, 182, 90, 0.45);
-  color: var(--amber);
 }
 
 .code-editor-shell {

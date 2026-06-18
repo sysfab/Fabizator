@@ -60,29 +60,6 @@ export function EditorPane({ file, onChangeFileContent, onDecompile }) {
 
   return (
     <div className="editor-pane">
-      {file.previewKind === "image" || file.previewKind === "audio" ? null : (
-        <div className="editor-header">
-          <div>
-            <h2>{file.path}</h2>
-          </div>
-          <span className={`edit-badge${
-            file.decompiled
-              ? " readonly"
-              : file.editable
-                ? " editable"
-                : " readonly"
-          }`}>
-            {file.decompiled
-              ? "Decompiled"
-              : file.editable
-                ? "Editable"
-                : file.path.toLowerCase().endsWith(".class")
-                  ? "Decompiling..."
-                  : "Read-only"}
-          </span>
-        </div>
-      )}
-
       {file.previewKind === "image" ? (
         <ImagePreview file={file} />
       ) : file.previewKind === "audio" ? (
