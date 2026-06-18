@@ -1,8 +1,9 @@
 import { useState } from "react";
+import JSZip from "jszip";
 import { analyzeMod } from "./mod/analyzer.js";
 import { decompileAll } from "./mod/decompiler.js";
-import { exportJar } from "./mod/exporter.js";
-import { buildTree, fileIdFromPath, formatBytes, importJar } from "./mod/importer.js";
+import { downloadBlob, exportJar } from "./mod/exporter.js";
+import { buildTree, fileFromBytes, fileIdFromPath, formatBytes, importJar } from "./mod/importer.js";
 import { initialState } from "./state/initialState.js";
 import { EditorPane } from "./ui/EditorPane.jsx";
 import { EditorTabs } from "./ui/EditorTabs.jsx";
@@ -130,6 +131,20 @@ function createEditableFile(path) {
     decompiled: false,
     content: "",
   };
+}
+
+async function bytesForFile(zip, file) {
+  const entry = zip?.file(file.path);
+
+  if (file.editable) {
+    return file.content;
+  }
+
+  if (entry) {
+    return entry.async("uint8array");
+  }
+
+  return file.classBytes ?? file.content ?? "";
 }
 
 export default function App() {
@@ -577,6 +592,55 @@ export default function App() {
     setNotice(`Added ${folderPath}.`);
   }
 
+  async function handleUploadFiles(parentItem, uploadedFiles) {
+    if (!appState.zip) {
+      setNotice("Open a JAR before uploading files.");
+      return;
+    }
+
+    const targetFolderPath = targetFolderPathFor(parentItem);
+    const files = [];
+
+    try {
+      for (const uploadedFile of uploadedFiles) {
+        const relativePath = uploadedFile.webkitRelativePath || uploadedFile.name;
+        const basePath = joinPath(targetFolderPath, relativePath);
+
+        if (hasEmptyPathSegment(basePath)) {
+          setNotice(`Skipped ${basePath}: paths cannot contain empty segments.`);
+          continue;
+        }
+
+        const path = uniqueCopyPath(basePath, [...appState.files, ...files], appState.folders);
+        const bytes = new Uint8Array(await uploadedFile.arrayBuffer());
+        const file = fileFromBytes(path, bytes, uploadedFile.size);
+
+        appState.zip.file(path, bytes);
+        files.push(file);
+      }
+
+      if (files.length === 0) {
+        return;
+      }
+
+      setAppState((current) => {
+        const mergedFiles = [...current.files, ...files];
+
+        return {
+          ...current,
+          selectedFileId: files.at(-1).id,
+          openFileIds: [...current.openFileIds, files.at(-1).id],
+          files: mergedFiles,
+          tree: buildTree(mergedFiles, current.folders),
+          analysis: analyzeMod(mergedFiles, current.jarName),
+        };
+      });
+      setNotice(`Uploaded ${files.length} file(s).`);
+    } catch (error) {
+      setNotice(`Could not upload files: ${error.message}`);
+    }
+  }
+
   function handleCopyItem(treeItem) {
     if (!treeItem) {
       return;
@@ -597,6 +661,64 @@ export default function App() {
     }
 
     await pasteFolder(targetItem, treeClipboard.path);
+  }
+
+  async function handleDownloadItem(treeItem) {
+    if (!treeItem) {
+      return;
+    }
+
+    if (treeItem.kind === "file") {
+      await downloadFile(treeItem);
+      return;
+    }
+
+    await downloadFolder(treeItem);
+  }
+
+  async function downloadFile(treeItem) {
+    const file = findFile(appState.files, treeItem.id);
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      downloadBlob(new Blob([await bytesForFile(appState.zip, file)]), file.name);
+      setNotice(`Downloaded ${file.path}.`);
+    } catch (error) {
+      setNotice(`Could not download ${file.path}: ${error.message}`);
+    }
+  }
+
+  async function downloadFolder(treeItem) {
+    const folderPath = treeItem.path;
+    const folderName = baseNameFor(folderPath);
+    const zip = new JSZip();
+    const folderFiles = appState.files.filter((file) => isInFolder(file, folderPath));
+    const folderPaths = appState.folders.filter((folder) => isFolderPathInFolder(folder, folderPath));
+
+    try {
+      zip.folder(folderName);
+
+      for (const folder of folderPaths) {
+        zip.folder(`${folderName}${folder.slice(folderPath.length)}`);
+      }
+
+      for (const file of folderFiles) {
+        zip.file(`${folderName}${file.path.slice(folderPath.length)}`, await bytesForFile(appState.zip, file));
+      }
+
+      const blob = await zip.generateAsync({
+        type: "blob",
+        compression: "DEFLATE",
+      });
+
+      downloadBlob(blob, `${folderName}.zip`);
+      setNotice(`Downloaded ${folderPath}.`);
+    } catch (error) {
+      setNotice(`Could not download ${folderPath}: ${error.message}`);
+    }
   }
 
   async function pasteFile(targetItem, sourcePath) {
@@ -776,8 +898,10 @@ export default function App() {
           onSelectFile={handleSelectFile}
           onAddFile={handleAddFile}
           onAddFolder={handleAddFolder}
+          onUploadFiles={handleUploadFiles}
           onCopyItem={handleCopyItem}
           onPasteItem={handlePasteItem}
+          onDownloadItem={handleDownloadItem}
           onRenameFile={handleRenameFile}
           onDeleteFile={handleDeleteFile}
           onRenameFolder={handleRenameFolder}

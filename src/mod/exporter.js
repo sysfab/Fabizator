@@ -22,6 +22,8 @@ export async function exportJar({ jarName, files, folders = [], zip }) {
   for (const file of files) {
     if (file.editable) {
       zip.file(file.path, file.content);
+    } else if (file.classBytes) {
+      zip.file(file.path, file.classBytes);
     }
   }
 
@@ -50,7 +52,7 @@ function outputNameFor(jarName) {
   return `${jarName}.jar`;
 }
 
-function downloadBlob(blob, fileName) {
+export function downloadBlob(blob, fileName) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
 

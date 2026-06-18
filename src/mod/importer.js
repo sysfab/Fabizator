@@ -45,35 +45,9 @@ export async function importJar(file) {
   const files = await Promise.all(
     zipEntries.map(async (entry) => {
       const size = entry._data?.uncompressedSize ?? 0;
-      const imageMimeType = imageMimeTypeFor(entry.name);
-      const audioMimeType = audioMimeTypeFor(entry.name);
-      const previewMimeType = imageMimeType ?? audioMimeType;
-      const previewDataUrl = previewMimeType
-        ? `data:${previewMimeType};base64,${await entry.async("base64")}`
-        : null;
-      const isClassFile = entry.name.toLowerCase().endsWith(".class");
       const bytes = await entry.async("uint8array");
-      const isText = isTextFile(bytes);
-      const editable = isText && size <= maxTextPreviewBytes;
-      const classBytes = isClassFile ? bytes : null;
 
-      return {
-        id: fileIdFromPath(entry.name),
-        name: entry.name.split("/").at(-1),
-        path: entry.name,
-        type: detectFileType(entry.name, isText),
-        size: formatBytes(size),
-        editable,
-        previewKind: imageMimeType ? "image" : audioMimeType ? "audio" : "code",
-        previewDataUrl,
-        classBytes,
-        decompiled: false,
-        content: isClassFile
-          ? "// Decompiling..."
-          : editable
-            ? strictUtf8Decoder.decode(bytes)
-            : buildBinaryPlaceholder(entry.name, size),
-      };
+      return fileFromBytes(entry.name, bytes, size);
     }),
   );
 
@@ -94,6 +68,45 @@ export function fileIdFromPath(path) {
 
 export function folderIdFromPath(path) {
   return `folder:${path}`;
+}
+
+export function fileFromBytes(path, bytes, size = bytes.byteLength) {
+  const imageMimeType = imageMimeTypeFor(path);
+  const audioMimeType = audioMimeTypeFor(path);
+  const previewMimeType = imageMimeType ?? audioMimeType;
+  const isClassFile = path.toLowerCase().endsWith(".class");
+  const isText = isTextFile(bytes);
+  const editable = isText && size <= maxTextPreviewBytes;
+  const classBytes = isClassFile ? bytes : null;
+
+  return {
+    id: fileIdFromPath(path),
+    name: path.split("/").at(-1),
+    path,
+    type: detectFileType(path, isText),
+    size: formatBytes(size),
+    editable,
+    previewKind: imageMimeType ? "image" : audioMimeType ? "audio" : "code",
+    previewDataUrl: previewMimeType ? `data:${previewMimeType};base64,${bytesToBase64(bytes)}` : null,
+    classBytes,
+    decompiled: false,
+    content: isClassFile
+      ? "// Decompiling..."
+      : editable
+        ? strictUtf8Decoder.decode(bytes)
+        : buildBinaryPlaceholder(path, size),
+  };
+}
+
+function bytesToBase64(bytes) {
+  let binary = "";
+  const chunkSize = 0x8000;
+
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(index, index + chunkSize));
+  }
+
+  return btoa(binary);
 }
 
 function isTextFile(bytes) {

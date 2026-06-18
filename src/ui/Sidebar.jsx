@@ -1,10 +1,12 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCopy, faFileCirclePlus, faFileCode, faFolder, faFolderOpen, faFolderPlus, faPaste, faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useState } from "react";
+import { faCopy, faDownload, faFileCirclePlus, faFileCode, faFolder, faFolderOpen, faFolderPlus, faPaste, faPenToSquare, faTrash, faUpload } from "@fortawesome/free-solid-svg-icons";
+import { useEffect, useRef, useState } from "react";
 
-export function Sidebar({ treeItems, selectedFileId, hasClipboardItem, onSelectFile, onAddFile, onAddFolder, onCopyItem, onPasteItem, onRenameFile, onDeleteFile, onRenameFolder, onDeleteFolder, onOpenAnalyzer }) {
+export function Sidebar({ treeItems, selectedFileId, hasClipboardItem, onSelectFile, onAddFile, onAddFolder, onUploadFiles, onCopyItem, onPasteItem, onDownloadItem, onRenameFile, onDeleteFile, onRenameFolder, onDeleteFolder, onOpenAnalyzer }) {
   const [expandedFolders, setExpandedFolders] = useState(() => new Set());
   const [contextMenu, setContextMenu] = useState(null);
+  const uploadTargetRef = useRef(null);
+  const fileUploadInputRef = useRef(null);
 
   useEffect(() => {
     setExpandedFolders(new Set());
@@ -55,7 +57,7 @@ export function Sidebar({ treeItems, selectedFileId, hasClipboardItem, onSelectF
     event.stopPropagation();
 
     const menuWidth = 156;
-    const menuHeight = item?.kind === "folder" || !item ? 260 : 178;
+    const menuHeight = item?.kind === "folder" || !item ? 342 : 218;
 
     setContextMenu({
       item,
@@ -84,6 +86,29 @@ export function Sidebar({ treeItems, selectedFileId, hasClipboardItem, onSelectF
 
   function contextLabel() {
     return contextMenu.item ? `Actions for ${contextMenu.item.label}` : "File tree actions";
+  }
+
+  function openUploadPicker(inputRef) {
+    if (!contextMenu) {
+      return;
+    }
+
+    uploadTargetRef.current = contextMenu.item;
+    setContextMenu(null);
+    inputRef.current?.click();
+  }
+
+  function handleUploadChange(event) {
+    const files = Array.from(event.target.files ?? []);
+
+    event.target.value = "";
+
+    if (files.length === 0) {
+      return;
+    }
+
+    onUploadFiles(uploadTargetRef.current, files);
+    uploadTargetRef.current = null;
   }
 
   const visibleItems = treeItems.filter((item) => isVisible(item, expandedFolders));
@@ -145,6 +170,10 @@ export function Sidebar({ treeItems, selectedFileId, hasClipboardItem, onSelectF
                 <FontAwesomeIcon icon={faFolderPlus} aria-hidden="true" />
                 <span>Add Folder</span>
               </button>
+              <button type="button" role="menuitem" onClick={() => openUploadPicker(fileUploadInputRef)}>
+                <FontAwesomeIcon icon={faUpload} aria-hidden="true" />
+                <span>Upload</span>
+              </button>
               <div className="context-menu-separator" role="separator" />
             </>
           )}
@@ -160,6 +189,10 @@ export function Sidebar({ treeItems, selectedFileId, hasClipboardItem, onSelectF
           </button>
           {contextMenu.item ? (
             <>
+              <button type="button" role="menuitem" onClick={() => handleContextAction(onDownloadItem)}>
+                <FontAwesomeIcon icon={faDownload} aria-hidden="true" />
+                <span>Download</span>
+              </button>
               <div className="context-menu-separator" role="separator" />
               <button type="button" role="menuitem" onClick={() => handleContextAction(renameActionFor(contextMenu.item))}>
                 <FontAwesomeIcon icon={faPenToSquare} aria-hidden="true" />
@@ -174,6 +207,14 @@ export function Sidebar({ treeItems, selectedFileId, hasClipboardItem, onSelectF
         </div>
       ) : null}
 
+      <input
+        ref={fileUploadInputRef}
+        className="visually-hidden"
+        type="file"
+        multiple
+        onChange={handleUploadChange}
+        tabIndex={-1}
+      />
       {treeItems.length > 0 ? (
         <div className="sidebar-actions">
           <button
