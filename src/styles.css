@@ -200,8 +200,12 @@ button {
 }
 
 .toolbar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
   min-height: 2.35rem;
-  padding: 0 0.8rem;
+  padding: 0 0.65rem;
   border-radius: 0.7rem;
   cursor: pointer;
 }

@@ -1,4 +1,6 @@
 import { useRef } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileExport, faFileImport } from "@fortawesome/free-solid-svg-icons";
 
 export function TopBar({ jarName, onOpenJar, onExport }) {
   const fileInputRef = useRef(null);
@@ -19,7 +21,7 @@ export function TopBar({ jarName, onOpenJar, onExport }) {
         <div className="brand-mark">FZ</div>
         <div>
           <h1>Fabizator</h1>
-          <p>Minecraft mod jar editor</p>
+          <p>Minecraft mod viewer/editor</p>
         </div>
       </div>
 
@@ -37,9 +39,13 @@ export function TopBar({ jarName, onOpenJar, onExport }) {
           onChange={handleFileChange}
         />
         <button type="button" onClick={() => fileInputRef.current?.click()}>
-          Open JAR
+          <FontAwesomeIcon icon={faFileImport} aria-hidden="true" />
+          Import
         </button>
-        <button type="button" className="primary-action" onClick={onExport}>Export</button>
+        <button type="button" className="primary-action" onClick={onExport}>
+          <FontAwesomeIcon icon={faFileExport} aria-hidden="true" />
+          Export
+        </button>
       </nav>
     </header>
   );

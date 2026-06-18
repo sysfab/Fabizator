@@ -49,7 +49,7 @@ export function EditorPane({ file, onChangeFileContent }) {
         <div>
           <span className="empty-kicker">No file selected</span>
           <h2>Click on the file to inspect its contents.</h2>
-          <p>(Open .JAR first)</p>
+          <p>(Import .JAR first)</p>
         </div>
       </div>
     );
