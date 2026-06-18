@@ -3,6 +3,7 @@ export const initialState = {
   selectedFileId: null,
   openFileIds: [],
   files: [],
+  folders: [],
   tree: [],
   zip: null,
   analysis: null,

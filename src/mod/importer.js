@@ -26,14 +26,19 @@ export async function importJar(file) {
   }
 
   const zip = await JSZip.loadAsync(file);
+  const folders = Object.values(zip.files)
+    .filter((entry) => entry.dir)
+    .map((entry) => entry.name.replace(/\/$/, ""))
+    .filter(Boolean)
+    .sort((left, right) => left.localeCompare(right));
   const zipEntries = Object.values(zip.files)
     .filter((entry) => !entry.dir)
     .sort((left, right) => left.name.localeCompare(right.name));
 
-  if (zipEntries.length === 0) {
+  if (zipEntries.length === 0 && folders.length === 0) {
     return {
       ok: false,
-      message: `${file.name} does not contain any files.`,
+      message: `${file.name} does not contain any files or folders.`,
     };
   }
 
@@ -77,16 +82,17 @@ export async function importJar(file) {
     jarName: file.name,
     zip,
     files,
-    tree: buildTree(files),
-    message: `Loaded ${file.name} with ${files.length} files.`,
+    folders,
+    tree: buildTree(files, folders),
+    message: `Loaded ${file.name} with ${files.length} files and ${folders.length} folders.`,
   };
 }
 
-function fileIdFromPath(path) {
+export function fileIdFromPath(path) {
   return `file:${path}`;
 }
 
-function folderIdFromPath(path) {
+export function folderIdFromPath(path) {
   return `folder:${path}`;
 }
 
@@ -133,14 +139,14 @@ function detectFileType(path, isText) {
   return "Text resource";
 }
 
-function buildTree(files) {
+export function buildTree(files, folderPaths = []) {
   const folders = new Map();
   const tree = [];
 
-  for (const file of files) {
-    const pathParts = file.path.split("/");
+  function addFolderPath(path) {
+    const pathParts = path.split("/");
 
-    pathParts.slice(0, -1).forEach((part, index) => {
+    pathParts.forEach((part, index) => {
       const folderPath = pathParts.slice(0, index + 1).join("/");
 
       if (!folders.has(folderPath)) {
@@ -156,6 +162,19 @@ function buildTree(files) {
         tree.push(folder);
       }
     });
+  }
+
+  for (const folderPath of folderPaths) {
+    addFolderPath(folderPath);
+  }
+
+  for (const file of files) {
+    const pathParts = file.path.split("/");
+    const folderPath = pathParts.slice(0, -1).join("/");
+
+    if (folderPath) {
+      addFolderPath(folderPath);
+    }
 
     tree.push({
       id: file.id,

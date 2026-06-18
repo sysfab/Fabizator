@@ -1,9 +1,22 @@
-export async function exportJar({ jarName, files, zip }) {
+export async function exportJar({ jarName, files, folders = [], zip }) {
   if (!zip) {
     return {
       ok: false,
       message: "Open a JAR before exporting.",
     };
+  }
+
+  const filePaths = new Set(files.map((file) => file.path));
+  const folderPaths = new Set(folders.map((folder) => `${folder}/`));
+
+  for (const path of Object.keys(zip.files)) {
+    if (!filePaths.has(path) && !folderPaths.has(path)) {
+      zip.remove(path);
+    }
+  }
+
+  for (const folder of folders) {
+    zip.folder(folder);
   }
 
   for (const file of files) {

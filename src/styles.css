@@ -387,6 +387,66 @@ button {
   font-size: 0.82rem;
 }
 
+.file-context-menu {
+  position: fixed;
+  z-index: 20;
+  min-width: 9.5rem;
+  padding: 0.25rem;
+  border: 1px solid var(--line-bright);
+  background: #0c131c;
+  box-shadow: var(--shadow);
+}
+
+.file-context-menu button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  color: var(--text);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.file-context-menu button:hover,
+.file-context-menu button:focus-visible {
+  background: #1b2838;
+  outline: none;
+}
+
+.file-context-menu button:disabled {
+  color: #64727c;
+  cursor: not-allowed;
+}
+
+.file-context-menu button:disabled:hover {
+  background: transparent;
+}
+
+.file-context-menu svg {
+  width: 1rem;
+  color: var(--accent-strong);
+}
+
+.file-context-menu button:disabled svg {
+  color: #53616c;
+}
+
+.file-context-menu .danger {
+  color: #ffd8d8;
+}
+
+.file-context-menu .danger svg {
+  color: var(--danger);
+}
+
+.context-menu-separator {
+  height: 1px;
+  margin: 0.25rem 0;
+  background: var(--line);
+}
+
 .editor-region {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
