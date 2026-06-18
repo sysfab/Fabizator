@@ -46,3 +46,36 @@ export async function decompileFile(file, files) {
 
   return decompileClassFile(decompile, file, classMap);
 }
+
+export async function decompileAll(files, onBatch, batchSize = 8) {
+  const decompile = await getCfr();
+  const classFiles = files.filter((f) =>
+    f.path.toLowerCase().endsWith(".class") && !f.decompiled && !f.decompiling
+  );
+
+  if (classFiles.length === 0) return 0;
+
+  const classMap = new Map(
+    files
+      .filter((f) => f.classBytes != null)
+      .map((f) => [f.path.replace(/\.class$/i, ""), f.classBytes])
+  );
+
+  let batch = [];
+  let completed = 0;
+
+  for (const file of classFiles) {
+    const source = await decompileClassFile(decompile, file, classMap);
+
+    batch.push({ id: file.id, source });
+    completed++;
+
+    if (batch.length >= batchSize || completed === classFiles.length) {
+      onBatch([...batch], completed, classFiles.length);
+      batch = [];
+      await new Promise((r) => setTimeout(r, 0));
+    }
+  }
+
+  return completed;
+}

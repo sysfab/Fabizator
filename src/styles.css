@@ -310,12 +310,19 @@ button {
 }
 
 .sidebar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
   padding: 0.45rem;
   border-top: 1px solid var(--line);
   background: rgba(15, 23, 33, 0.84);
 }
 
 .analyzer-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
   width: 100%;
   min-height: 2rem;
   border: 1px solid var(--line);

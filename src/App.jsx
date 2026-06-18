@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import JSZip from "jszip";
 import { analyzeMod } from "./mod/analyzer.js";
-import { decompileFile } from "./mod/decompiler.js";
+import { decompileAll, decompileFile } from "./mod/decompiler.js";
 import { downloadBlob, exportJar } from "./mod/exporter.js";
 import { buildTree, fileFromBytes, fileIdFromPath, formatBytes, importJar } from "./mod/importer.js";
 import { initialState } from "./state/initialState.js";
@@ -167,6 +167,9 @@ export default function App() {
     .filter(Boolean);
   const activeEditorItem = appState.selectedFileId === analyzerTab.id ? analyzerTab : selectedFile;
   const isAnalyzerOpen = appState.selectedFileId === analyzerTab.id;
+  const hasUndecompiledClassFiles = appState.files.some((file) =>
+    file.path.toLowerCase().endsWith(".class") && !file.decompiled && !file.decompiling
+  );
 
   useEffect(() => {
     if (selectedFile) {
@@ -241,6 +244,55 @@ export default function App() {
         ),
       }));
       setNotice(`Could not decompile ${file.name}: ${error.message}`);
+    }
+  }
+
+  async function handleDecompileAll() {
+    const pendingFileIds = appState.files
+      .filter((file) => file.path.toLowerCase().endsWith(".class") && !file.decompiled && !file.decompiling)
+      .map((file) => file.id);
+
+    if (pendingFileIds.length === 0) {
+      return;
+    }
+
+    const pendingFileIdSet = new Set(pendingFileIds);
+    setNotice(`Decompiling ${pendingFileIds.length} class files...`);
+    setAppState((current) => ({
+      ...current,
+      files: current.files.map((file) =>
+        pendingFileIdSet.has(file.id)
+          ? { ...file, content: "// Decompiling...", decompiling: true }
+          : file
+      ),
+    }));
+
+    try {
+      await decompileAll(appState.files, (batch, completed, total) => {
+        setAppState((current) => {
+          const sources = new Map(batch.map((item) => [item.id, item.source]));
+
+          return {
+            ...current,
+            files: current.files.map((file) =>
+              sources.has(file.id)
+                ? { ...file, content: sources.get(file.id), decompiled: true, decompiling: false }
+                : file
+            ),
+          };
+        });
+        setNotice(`Decompiled ${completed} of ${total} class files...`);
+      });
+
+      setNotice(`Decompiled ${pendingFileIds.length} class files.`);
+    } catch (error) {
+      setAppState((current) => ({
+        ...current,
+        files: current.files.map((file) =>
+          pendingFileIdSet.has(file.id) ? { ...file, decompiling: false } : file
+        ),
+      }));
+      setNotice(`Could not decompile all class files: ${error.message}`);
     }
   }
 
@@ -349,10 +401,19 @@ export default function App() {
       }
 
       const nextId = fileIdFromPath(nextPath);
+      const classExtensionChanged =
+        currentFile.path.toLowerCase().endsWith(".class") !== nextPath.toLowerCase().endsWith(".class");
       setAppState((current) => {
         const files = current.files.map((file) =>
           file.id === currentFile.id
-            ? { ...file, id: nextId, name: nextPath.split("/").at(-1), path: nextPath }
+            ? {
+                ...file,
+                id: nextId,
+                name: nextPath.split("/").at(-1),
+                path: nextPath,
+                decompiled: classExtensionChanged ? false : file.decompiled,
+                decompiling: classExtensionChanged ? false : file.decompiling,
+              }
             : file,
         );
 
@@ -913,6 +974,7 @@ export default function App() {
           treeItems={appState.tree}
           selectedFileId={appState.selectedFileId}
           hasClipboardItem={Boolean(treeClipboard)}
+          hasUndecompiledClassFiles={hasUndecompiledClassFiles}
           onSelectFile={handleSelectFile}
           onAddFile={handleAddFile}
           onAddFolder={handleAddFolder}
@@ -924,6 +986,7 @@ export default function App() {
           onDeleteFile={handleDeleteFile}
           onRenameFolder={handleRenameFolder}
           onDeleteFolder={handleDeleteFolder}
+          onDecompileAll={handleDecompileAll}
           onOpenAnalyzer={openAnalyzer}
         />
 

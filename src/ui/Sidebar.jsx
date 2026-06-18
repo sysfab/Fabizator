@@ -1,8 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCopy, faDownload, faFileCirclePlus, faFileCode, faFolder, faFolderOpen, faFolderPlus, faPaste, faPenToSquare, faTrash, faUpload } from "@fortawesome/free-solid-svg-icons";
+import { faCode, faCopy, faDownload, faFileCirclePlus, faFileCode, faFolder, faFolderOpen, faFolderPlus, faPaste, faPenToSquare, faTrash, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";
 
-export function Sidebar({ treeItems, selectedFileId, hasClipboardItem, onSelectFile, onAddFile, onAddFolder, onUploadFiles, onCopyItem, onPasteItem, onDownloadItem, onRenameFile, onDeleteFile, onRenameFolder, onDeleteFolder, onOpenAnalyzer }) {
+export function Sidebar({ treeItems, selectedFileId, hasClipboardItem, hasUndecompiledClassFiles, onSelectFile, onAddFile, onAddFolder, onUploadFiles, onCopyItem, onPasteItem, onDownloadItem, onRenameFile, onDeleteFile, onRenameFolder, onDeleteFolder, onDecompileAll, onOpenAnalyzer }) {
   const [expandedFolders, setExpandedFolders] = useState(() => new Set());
   const [contextMenu, setContextMenu] = useState(null);
   const uploadTargetRef = useRef(null);
@@ -217,6 +217,16 @@ export function Sidebar({ treeItems, selectedFileId, hasClipboardItem, onSelectF
       />
       {treeItems.length > 0 ? (
         <div className="sidebar-actions">
+          {hasUndecompiledClassFiles ? (
+            <button
+              type="button"
+              className="analyzer-button"
+              onClick={onDecompileAll}
+            >
+              <FontAwesomeIcon icon={faCode} aria-hidden="true" />
+              Decompile All
+            </button>
+          ) : null}
           <button
             type="button"
             className={`analyzer-button${selectedFileId === "app:analyzer" ? " active" : ""}`}
